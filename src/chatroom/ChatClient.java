@@ -12,45 +12,50 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 /**
- * YOUR NAME HERE
+ * Lily Schwarz
  */
-public class ChatClient extends ChatWindow {
+public class ChatClient extends ChatWindow
+{
 
 	// Inner class used for networking
 	private Communicator comm;
 
 	// GUI Objects
-	private JTextField serverTxt;
-	private JTextField nameTxt;
-	private JButton connectB;
-	private JTextField messageTxt;
-	private JButton sendB;
+	private JTextField serverText;
+	private JTextField nameText;
+	private JButton connectButton;
+	private JTextField messageText;
+	private JButton sendButton;
 
-	public ChatClient(){
+	/**
+	 * Sets up display of Client window
+	 */
+	public ChatClient()
+	{
 		super();
 		this.setTitle("Chat Client");
 		printMsg("Chat Client Started.");
 
 		// GUI elements at top of window
 		// Need a Panel to store several buttons/text fields
-		serverTxt = new JTextField("localhost");
-		serverTxt.setColumns(15);
-		nameTxt = new JTextField("Name");
-		nameTxt.setColumns(10);
-		connectB = new JButton("Connect");
+		serverText = new JTextField("localhost");
+		serverText.setColumns(15);
+		nameText = new JTextField("Name");
+		nameText.setColumns(10);
+		connectButton = new JButton("Connect");
 		JPanel topPanel = new JPanel();
-		topPanel.add(serverTxt);
-		topPanel.add(nameTxt);
-		topPanel.add(connectB);
+		topPanel.add(serverText);
+		topPanel.add(nameText);
+		topPanel.add(connectButton);
 		contentPane.add(topPanel, BorderLayout.NORTH);
 
 		// GUI elements and panel at bottom of window
-		messageTxt = new JTextField("");
-		messageTxt.setColumns(40);
-		sendB = new JButton("Send");
+		messageText = new JTextField("");
+		messageText.setColumns(40);
+		sendButton = new JButton("Send");
 		JPanel botPanel = new JPanel();
-		botPanel.add(messageTxt);
-		botPanel.add(sendB);
+		botPanel.add(messageText);
+		botPanel.add(sendButton);
 		contentPane.add(botPanel, BorderLayout.SOUTH);
 
 		// Resize window to fit all GUI components
@@ -58,49 +63,81 @@ public class ChatClient extends ChatWindow {
 
 		// Setup the communicator so it will handle the connect button
 		Communicator comm = new Communicator();
-		connectB.addActionListener(comm);
-		sendB.addActionListener(comm);
+		connectButton.addActionListener(comm);
+		sendButton.addActionListener(comm);
 
 	}
 
 	/** This inner class handles communication with the server. */
-	class Communicator implements ActionListener{
+	/**
+	 * Client Communicates with Server
+	 */
+	class Communicator implements ActionListener
+	{
 		private Socket socket;
 		private PrintWriter writer;
 		private BufferedReader reader;
 		private int port = 2113;
 
+		/** Connect/ Send Button commands **/
 		@Override
 		public void actionPerformed(ActionEvent actionEvent) {
-			if(actionEvent.getActionCommand().compareTo("Connect") == 0) {
+
+			if (actionEvent.getActionCommand().compareTo("Connect") == 0) {
 				connect();
+
 			}
-			else if(actionEvent.getActionCommand().compareTo("Send") == 0) {
-				sendMsg(messageTxt.getText());
+			else if (actionEvent.getActionCommand().compareTo("Send") == 0)
+			{
+				//only allows one message input? --> while loop?
+				//have to press twice to receive both messages? --> issue with serve command?
+				sendMsg(messageText.getText());
+				//needs to be called separately?
 			}
+			else
+			{
+				readMsg();
+			}
+
 		}
 
 		/** Connect to the remote server and setup input/output streams. */
 		public void connect(){
 			try {
-				socket = new Socket(serverTxt.getText(), port);
+				socket = new Socket(serverText.getText(), port);
 				InetAddress serverIP = socket.getInetAddress();
 				printMsg("Connection made to " + serverIP);
 				writer = new PrintWriter(socket.getOutputStream(), true);
 				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 				sendMsg("Hello server");
+				//writer.flush();
+
 
 			}
-			catch(IOException e) {
+			catch(IOException e)
+			{
 				printMsg("\nERROR:" + e.getLocalizedMessage() + "\n");
 			}
 		}
+
 		/** Receive and display a message */
-		public void readMsg() throws IOException {
-			String s = reader.readLine();
-			printMsg(s);
+		public void readMsg()
+		{
+			try
+			{
+				String s = reader.readLine();
+				printMsg(s);
+				//writer.close();
+				//socket.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+
 		}
+
 		/** Send a string */
 		public void sendMsg(String s){
 			writer.println(s);
@@ -108,7 +145,8 @@ public class ChatClient extends ChatWindow {
 	}
 
 
-	public static void main(String args[]){
+	public static void main(String args[])
+	{
 		new ChatClient();
 	}
 
