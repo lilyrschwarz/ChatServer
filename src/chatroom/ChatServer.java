@@ -14,6 +14,7 @@ import java.net.Socket;
 public class ChatServer extends ChatWindow {
 
 	private ClientHandler handler;
+	public String name = "Client Name: ";
 
 	public ChatServer(){
 		super();
@@ -65,8 +66,8 @@ public class ChatServer extends ChatWindow {
 				while(true)
 				{
 					// read a message from the client
-					readMsg();
-					sendMsg();
+					String s = readMsg();
+					sendMsg(s);
 				}
 			}
 			catch (IOException e){
@@ -75,21 +76,25 @@ public class ChatServer extends ChatWindow {
 		}
 
 		/** Receive and display a message */
-		public void readMsg() throws IOException {
+		public String readMsg() throws IOException
+		{
 			String s = reader.readLine();
-			printMsg("Client Sent: " + s);
+			printMsg(name + s);
+			String one = s.substring(0,5);
+			String two = s.substring(6);
+			if(one.equals("/name"))
+			{
+				name = two;
+			} else
+			{
+				printMsg(s);
+			}
+			return s;
 		}
 		/** Send a string */
-		public void sendMsg()
+		public void sendMsg(String s)
 		{
-			try
-			{
-				writer.println("Client Name: " + reader.readLine());
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
+			writer.println(s);
 		}
 
 	}

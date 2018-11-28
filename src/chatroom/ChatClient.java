@@ -20,6 +20,7 @@ public class ChatClient extends ChatWindow
 	// Inner class used for networking
 	private Communicator comm;
 
+
 	// GUI Objects
 	private JTextField serverText;
 	private JTextField nameText;
@@ -89,15 +90,17 @@ public class ChatClient extends ChatWindow
 			}
 			else if (actionEvent.getActionCommand().compareTo("Send") == 0)
 			{
-				//only allows one message input? --> while loop?
-				//have to press twice to receive both messages? --> issue with serve command?
 				sendMsg(messageText.getText());
-				//needs to be called separately?
+                try
+                {
+                    readMsg();
+                }
+                catch (IOException e)
+                {
+
+                }
 			}
-			else
-			{
-				readMsg();
-			}
+
 
 		}
 
@@ -122,19 +125,13 @@ public class ChatClient extends ChatWindow
 		}
 
 		/** Receive and display a message */
-		public void readMsg()
+		public String readMsg() throws IOException
 		{
-			try
-			{
+
 				String s = reader.readLine();
 				printMsg(s);
-				//writer.close();
-				//socket.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+
+				return s;
 
 		}
 
