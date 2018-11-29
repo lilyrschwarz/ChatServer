@@ -14,8 +14,6 @@ import java.net.Socket;
 public class ChatServer extends ChatWindow {
 
 	private ClientHandler handler;
-	public String name = "Client Name: ";
-
 	public ChatServer(){
 		super();
 		this.setTitle("Chat Server");
@@ -31,7 +29,6 @@ public class ChatServer extends ChatWindow {
 				// The method accept() blocks until a client connects.
 				printMsg("Waiting for a connection");
 				Socket socket = server.accept();
-
 				handler = new ClientHandler(socket);
 				handler.handleConnection();
 			}
@@ -44,9 +41,10 @@ public class ChatServer extends ChatWindow {
 	}
 
 	/** This inner class handles communication to/from one client. */
-	class ClientHandler {
+	class ClientHandler implements Runnable{
 		private PrintWriter writer;
 		private BufferedReader reader;
+		public String clientName = "Client Name: ";
 
 		public ClientHandler(Socket socket) {
 			try
@@ -79,20 +77,40 @@ public class ChatServer extends ChatWindow {
 		public String readMsg() throws IOException
 		{
 			String s = reader.readLine();
-			printMsg(name + s);
-			String one = s.substring(0,5);
-			String two = s.substring(6);
-			if(one.equals("/name"))
+			String t = "";
+			String newName= "";
+			if(s.length()>=7)
 			{
-				name = two;
-			} else
+				t = s.substring(0,5);
+				newName = s.substring(6);
+			}
+
+			if(t.equals("/name"))
 			{
-				printMsg(s);
+				clientName = newName + ": ";
+				printMsg(newName + " changed their name");
+			}
+
+			else
+			{
+				printMsg(clientName + s);
 			}
 			return s;
 		}
+
+		public void run()
+		{
+			this.handleConnection();
+		}
+
+		public void connect()
+		{
+			Thread thread = new Thread(this);
+			thread.start();
+		}
+
 		/** Send a string */
-		public void sendMsg(String s)
+		public void sendMsg(String s) throws IOException
 		{
 			writer.println(s);
 		}
