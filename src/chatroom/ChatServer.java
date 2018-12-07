@@ -68,7 +68,6 @@ public class ChatServer extends ChatWindow {
 			try {
 				while(true)
 				{
-					// read a message from the client
 					String s = readMsg();
 					sendMsg(s);
 				}
@@ -84,6 +83,8 @@ public class ChatServer extends ChatWindow {
 			String s = reader.readLine();
 			String t = "";
 			String newName= "";
+
+			//length of "/name"
 			if(s.length()>=7)
 			{
 				t = s.substring(0,5);
@@ -114,7 +115,6 @@ public class ChatServer extends ChatWindow {
 		/** Send a string */
 		public void sendMsg(String s) throws IOException
 		{
-			//writer.println(s);
 			for(ClientHandler c: clients)
 			{
 				c.writer.println(s);
