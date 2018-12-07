@@ -73,7 +73,7 @@ public class ChatClient extends ChatWindow
 	/**
 	 * Client Communicates with Server
 	 */
-	class Communicator implements ActionListener
+	class Communicator implements ActionListener, Runnable
 	{
 		private Socket socket;
 		private PrintWriter writer;
@@ -91,18 +91,26 @@ public class ChatClient extends ChatWindow
 			else if (actionEvent.getActionCommand().compareTo("Send") == 0)
 			{
 				sendMsg(messageText.getText());
-                try
-                {
-                    readMsg();
-                }
-                catch (IOException e)
-                {
 
-                }
 			}
 
 
+
 		}
+
+		public void run()
+		{
+
+			try {
+				while (true) {
+					String s = readMsg();
+				}
+			}catch (IOException e)
+			{
+				printMsg("\nERROR Server:" + e.getLocalizedMessage() + "\n");
+			}
+		}
+
 
 		/** Connect to the remote server and setup input/output streams. */
 		public void connect(){
@@ -112,9 +120,10 @@ public class ChatClient extends ChatWindow
 				printMsg("Connection made to " + serverIP);
 				writer = new PrintWriter(socket.getOutputStream(), true);
 				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				Thread thread = new Thread(this);
+				thread.start();
 
 				sendMsg("Hello server");
-				//writer.flush();
 
 
 			}
@@ -134,6 +143,7 @@ public class ChatClient extends ChatWindow
 				return s;
 
 		}
+		
 
 		/** Send a string */
 		public void sendMsg(String s){

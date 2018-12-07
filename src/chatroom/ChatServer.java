@@ -7,12 +7,14 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Lily Schwarz
  */
 public class ChatServer extends ChatWindow {
 
+	public ArrayList<ClientHandler> clients = new ArrayList<>();
 	private ClientHandler handler;
 	public ChatServer(){
 		super();
@@ -30,7 +32,10 @@ public class ChatServer extends ChatWindow {
 				printMsg("Waiting for a connection");
 				Socket socket = server.accept();
 				handler = new ClientHandler(socket);
-				handler.handleConnection();
+				Thread thread = new Thread(handler);
+				thread.start();
+				clients.add(handler);
+
 			}
 
 		}
@@ -85,6 +90,7 @@ public class ChatServer extends ChatWindow {
 				newName = s.substring(6);
 			}
 
+			//if the user enters this, that indicates that they want to change their name
 			if(t.equals("/name"))
 			{
 				clientName = newName + ": ";
@@ -103,16 +109,17 @@ public class ChatServer extends ChatWindow {
 			this.handleConnection();
 		}
 
-		public void connect()
-		{
-			Thread thread = new Thread(this);
-			thread.start();
-		}
+
 
 		/** Send a string */
 		public void sendMsg(String s) throws IOException
 		{
-			writer.println(s);
+			//writer.println(s);
+			for(ClientHandler c: clients)
+			{
+				c.writer.println(s);
+			}
+
 		}
 
 	}
